@@ -44,7 +44,7 @@ class Vec2 implements IVec2 {
     return Math.abs(this.subtract(other).magnitude());
   }
 
-  public add(other: Vec2) {
+  public add(other: Vec2): this {
     this.x += other.x;
     this.y += other.y;
     return this;
@@ -68,13 +68,13 @@ class Vec2 implements IVec2 {
     return this;
   }
 
-  public multiply(other: Vec2) {
+  public multiply(other: Vec2): this {
     this.x *= other.x;
     this.y *= other.y;
     return this;
   }
 
-  public multiplyScalar(scalar: number) {
+  public multiplyScalar(scalar: number): this {
     this.x *= scalar;
     this.y *= scalar;
     return this;
@@ -103,7 +103,7 @@ class Vec2 implements IVec2 {
     return this.x * other.y - this.y * other.x;
   }
 
-  public rotate(rad: number) {
+  public rotate(rad: number): this {
     this.x = this.x * Math.cos(rad) - this.y * Math.sin(rad);
     this.y =  this.x * Math.sin(rad) + this.y * Math.cos(rad);
 

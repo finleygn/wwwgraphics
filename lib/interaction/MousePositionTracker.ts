@@ -50,7 +50,7 @@ class MousePositionTracker {
     this.element.addEventListener('touchstart', this.handleTouch);
   }
 
-  public destroy() {
+  public destroy(): void {
     this.element.removeEventListener('mousemove', this.handleMouseMove);
     this.element.removeEventListener('touchmove', this.handleTouch);
     this.element.removeEventListener('touchstart', this.handleTouch);
@@ -67,11 +67,11 @@ class MousePositionTracker {
     return () => this.unsubscribe(subscriber);
   }
 
-  public unsubscribe(subscriber: Subscriber) {
+  public unsubscribe(subscriber: Subscriber): void {
     this.subscribers.delete(subscriber);
   }
 
-  private handleMouseMove(event: MouseEvent) {
+  private handleMouseMove(event: MouseEvent): void {
     const { left, top, width, height } = this.element.getBoundingClientRect();
 
     this.x = (event.clientX - left) / width;
@@ -80,7 +80,7 @@ class MousePositionTracker {
     this.notifySubscribers();
   }
 
-  private handleTouch(event: TouchEvent) {
+  private handleTouch(event: TouchEvent): void {
     const touch = event.touches[0] || event.changedTouches[0];
     const { left, top, width, height } = this.element.getBoundingClientRect();
 
@@ -90,7 +90,7 @@ class MousePositionTracker {
     this.notifySubscribers();
   }
 
-  private notifySubscribers() {
+  private notifySubscribers(): void {
     for(const subscriber of this.subscribers) {
       subscriber(this.x, this.y);
     }
