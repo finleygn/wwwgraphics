@@ -8,5 +8,11 @@
     "./interaction": "./lib/interaction/index.ts",
     "./webgl": "./lib/webgl/index.ts",
     "./renderLoop": "./lib/renderLoop.ts"
+  },
+  "publish": {
+    "include": [
+      "README.md",
+      "lib/**/*.ts"
+    ]
   }
 }
