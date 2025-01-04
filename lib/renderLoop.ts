@@ -13,13 +13,13 @@ function renderLoop(
   callback: RenderLoopCallback,
   { longestFrame = 50 }: RenderLoopOptions
 ) {
-  let lastFrameTime = Date.now();
-  let firstFrameTime = Date.now();
+  let lastFrameTime = Date.now() * 0.001;
+  let firstFrameTime = Date.now() * 0.001;
 
   const runnner = () => {
     requestAnimationFrame(runnner);
 
-    const currentTime = Date.now();
+    const currentTime = Date.now() * 0.001;
 
     let dt = currentTime - lastFrameTime;
     if (dt > longestFrame) {
