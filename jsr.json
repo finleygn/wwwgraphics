@@ -1,0 +1,12 @@
+{
+  "name": "@fishley/wwwgraphics",
+  "version": "0.1.0",
+  "license": "MIT",
+  "exports": {
+    "./math": "./lib/math/index.ts",
+    "./animation": "./lib/animation/index.ts",
+    "./interaction": "./lib/interaction/index.ts",
+    "./webgl": "./lib/webgl/index.ts",
+    "./renderLoop": "./lib/renderLoop.ts"
+  }
+}
