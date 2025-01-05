@@ -1,6 +1,7 @@
 /**
- * https://iquilezles.org/articles/functions
+ * Thanks https://iquilezles.org/articles/functions
  */
+
 export function cubicPulse(c: number, w: number, x: number): number {
   x = Math.abs(x - c);
   if (x > w) return 0;

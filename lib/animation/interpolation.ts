@@ -13,9 +13,7 @@ export function lerp(start: number, end: number, progress: number): number {
 }
 
 /**
- * Decay from `start` to `end` over time.
- * 
- * This is framerate independent which is helpful for autonomous smoothing 
+ * Decay from `start` to `end` over time. This is framerate independent which is helpful for autonomous smoothing 
  * 
  * @see {@link AutonomousSmoothValue}
  * @see {@link https://www.youtube.com/watch?v=LSNQuFEDOyQ Why to use this over lerp?}
