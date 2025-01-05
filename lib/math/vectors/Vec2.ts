@@ -34,12 +34,10 @@ class Vec2 implements IVec2 {
   }
 
   /**
-   * Clone a vector.
-   * 
-   * @param vector the vector to clone
+   * Clone this vector.
    */ 
-  public clone(vector: Vec2): Vec2 {
-    return Vec2.from(vector);
+  public clone(): Vec2 {
+    return Vec2.from(this);
   }
 
   /**
