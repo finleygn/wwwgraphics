@@ -1,6 +1,6 @@
 type Subscriber = (x: number, y: number) => void;
 
-interface EventEmitter {
+export interface EventEmitter {
   addEventListener(type: "mousemove", listener: (event: MouseEvent) => void): void;
   addEventListener(type: "touchmove", listener: (event: TouchEvent) => void): void;
   addEventListener(type: "touchstart", listener: (event: TouchEvent) => void): void;

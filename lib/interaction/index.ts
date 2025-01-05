@@ -1,1 +1,1 @@
-export { default as MousePositionTracker } from './MousePositionTracker';
+export { default as MousePositionTracker, type EventEmitter } from './MousePositionTracker';

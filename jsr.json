@@ -7,7 +7,7 @@
     "./animation": "./lib/animation/index.ts",
     "./interaction": "./lib/interaction/index.ts",
     "./webgl": "./lib/webgl/index.ts",
-    "./renderLoop": "./lib/renderLoop.ts"
+    "./app": "./lib/app/index.ts"
   },
   "publish": {
     "include": [
