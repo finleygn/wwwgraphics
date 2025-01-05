@@ -4,4 +4,4 @@
  * @module
  */
 
-export { default as renderLoop } from './renderLoop';
+export { default as renderLoop, type RenderLoopTimeData, type RenderLoopCallback, type RenderLoopOptions } from './renderLoop';

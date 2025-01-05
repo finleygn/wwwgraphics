@@ -7,7 +7,7 @@ export interface RenderLoopOptions {
   longestFrame: number;
 }
 
-type RenderLoopCallback = (data: RenderLoopTimeData) => void
+export type RenderLoopCallback = (data: RenderLoopTimeData) => void
 
 /**
  * Render loop that calls a callback once per frame.
