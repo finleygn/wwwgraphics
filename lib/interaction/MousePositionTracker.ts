@@ -71,7 +71,7 @@ class MousePositionTracker {
     this.subscribers.delete(subscriber);
   }
 
-  private handleMouseMove(event: MouseEvent): void {
+  private handleMouseMove = (event: MouseEvent): void => {
     const { left, top, width, height } = this.element.getBoundingClientRect();
 
     this.x = (event.clientX - left) / width;
@@ -80,7 +80,7 @@ class MousePositionTracker {
     this.notifySubscribers();
   }
 
-  private handleTouch(event: TouchEvent): void {
+  private handleTouch = (event: TouchEvent): void =>  {
     const touch = event.touches[0] || event.changedTouches[0];
     const { left, top, width, height } = this.element.getBoundingClientRect();
 

@@ -9,6 +9,12 @@ export interface RenderLoopOptions {
 
 type RenderLoopCallback = (data: RenderLoopTimeData) => void
 
+/**
+ * Render loop that calls a callback once per frame.
+ * 
+ * @param callback the callback to call once per frame
+ * @param options the options for the render loop
+ */
 function renderLoop(
   callback: RenderLoopCallback,
   { longestFrame = 50 }: RenderLoopOptions
@@ -22,6 +28,8 @@ function renderLoop(
     const currentTime = Date.now() * 0.001;
 
     let dt = currentTime - lastFrameTime;
+
+    // Cap the delta time to the longest frame time.
     if (dt > longestFrame) {
       dt = longestFrame
     };
