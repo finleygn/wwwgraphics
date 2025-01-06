@@ -20,7 +20,7 @@ class Vec2 implements IVec2 {
    * 
    * @param vector the vector to clone
    */ 
-  static from(vector: Vec2): Vec2 {
+  static from(vector: IVec2): Vec2 {
     return new Vec2(vector.x, vector.y);
   }
 
