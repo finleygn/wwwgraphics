@@ -1,60 +1,108 @@
+import { clamp } from "../math/util";
+
 type Subscriber = (x: number, y: number) => void;
 
-export interface EventEmitter {
-  addEventListener(type: "mousemove", listener: (event: MouseEvent) => void): void;
-  addEventListener(type: "touchmove", listener: (event: TouchEvent) => void): void;
-  addEventListener(type: "touchstart", listener: (event: TouchEvent) => void): void;
-  removeEventListener(type: "mousemove", listener: Function): void;
-  removeEventListener(type: "touchmove", listener: Function): void;
-  removeEventListener(type: "touchstart", listener: Function): void;
-  getBoundingClientRect(): DOMRect;
+interface Container {
+  subscribeTouch(subscriber: (event: TouchEvent) => void): void;
+  subscribeMouse(subscriber: (event: MouseEvent) => void): void;
+  unsubscribeTouch(subscriber: (event: TouchEvent) => void): void;
+  unsubscribeMouse(subscriber: (event: MouseEvent) => void): void;
+  getBoundingBox(): { top: number, left: number, width: number, height: number };
 }
 
-function createWindowAdapter(): EventEmitter {
+interface EventListenerTarget {
+  addEventListener(type: 'mousemove', listener: (event: MouseEvent) => void): void;
+  addEventListener(type: 'touchstart' | 'touchmove', listener: (event: TouchEvent) => void): void;
+  removeEventListener(type: 'mousemove', listener: (event: MouseEvent) => void): void;
+  removeEventListener(type: 'touchstart' | 'touchmove', listener: (event: TouchEvent) => void): void;
+}
+
+function createEventTarget(target: EventListenerTarget) {
   return {
-    addEventListener: window.addEventListener,
-    removeEventListener: window.removeEventListener,
-    getBoundingClientRect: () => ({
-      width: window.innerWidth,
-      height: window.innerHeight,
-      bottom: 0,
-      right: 0,
-      top: 0,
-      left: 0,
-      x: 0,
-      y: 0,
-      toJSON() {
-        throw new Error("Unsupported")
+    subscribeMouse(subscriber: (event: MouseEvent) => void) {
+      target.addEventListener('mousemove', subscriber);
+    },
+    unsubscribeMouse(subscriber: (event: MouseEvent) => void) {
+      target.removeEventListener('mousemove', subscriber);
+    },
+    subscribeTouch(subscriber: (event: TouchEvent) => void) {
+      target.addEventListener('touchstart', subscriber);
+      target.addEventListener('touchmove', subscriber);
+    },
+    unsubscribeTouch(subscriber: (event: TouchEvent) => void) {
+      target.removeEventListener('touchstart', subscriber);
+      target.removeEventListener('touchmove', subscriber);
+    },
+  }
+}
+
+function createElementContainer(element: HTMLElement): Container {
+  return {
+    ...createEventTarget(element),
+    getBoundingBox() {
+      return element.getBoundingClientRect()
+    },
+  }
+}
+
+function createWindowContainer(): Container {
+  return {
+    ...createEventTarget(window),
+    getBoundingBox() {
+      return {
+        width: window.innerWidth,
+        height: window.innerHeight,
+        top: 0,
+        left: 0,
       }
-    })
+    },
   }
 }
 
 /**
  * Keep track of the position of the users mouse within an element.
+ * Ideally you should only have one instance of this class.
+ * 
+ * Subscribe to the position: 
+ * ```ts
+ * const tracker = new MousePositionTracker(0.5, 0.5, element);
+ * 
+ * tracker.subscribe((x, y) => {
+ *   console.log(x, y);
+ * });
+ * ```
+ * 
+ * Get the position in a render loop:
+ * ```ts
+ * const tracker = new MousePositionTracker(0.5, 0.5, element);
+ * 
+ * renderLoop(() => {
+ *   console.log(tracker.x, tracker.y);
+ * });
+ * ```
  */
 class MousePositionTracker {
   public x: number;
   public y: number;
-  public element: EventEmitter;
-  public subscribers: Set<Subscriber>;
+  private container: Container;
+  private subscribers: Set<Subscriber>;
 
-  constructor(element: EventEmitter = createWindowAdapter(), x: number = 0.5, y: number = 0.5) {
+  constructor(x: number = 0.5, y: number = 0.5, element?: HTMLElement) {
     this.x = x;
     this.y = y;
-    this.element = element;
+    this.container = element ? createElementContainer(element) : createWindowContainer();
     this.subscribers = new Set();
 
-    this.element.addEventListener('mousemove', this.handleMouseMove);
-    this.element.addEventListener('touchmove', this.handleTouch);
-    this.element.addEventListener('touchstart', this.handleTouch);
+    this.container.subscribeMouse(this.handleMouseMove);
+    this.container.subscribeTouch(this.handleTouch);
   }
 
   public destroy(): void {
-    this.element.removeEventListener('mousemove', this.handleMouseMove);
-    this.element.removeEventListener('touchmove', this.handleTouch);
-    this.element.removeEventListener('touchstart', this.handleTouch);
+    this.container.unsubscribeMouse(this.handleMouseMove);
+    this.container.unsubscribeTouch(this.handleTouch);
+    this.subscribers.clear();
   }
+
 
   /**
    * Recieve events when the mouse position has changed.
@@ -72,20 +120,20 @@ class MousePositionTracker {
   }
 
   private handleMouseMove = (event: MouseEvent): void => {
-    const { left, top, width, height } = this.element.getBoundingClientRect();
+    const { left, top, width, height } = this.container.getBoundingBox();
 
-    this.x = (event.clientX - left) / width;
-    this.y = (event.clientY - top) / height;
+    this.x = clamp((event.clientX - left) / width, 0, 1);
+    this.y = clamp((event.clientY - top) / height, 0, 1);
 
     this.notifySubscribers();
   }
 
   private handleTouch = (event: TouchEvent): void =>  {
     const touch = event.touches[0] || event.changedTouches[0];
-    const { left, top, width, height } = this.element.getBoundingClientRect();
+    const { left, top, width, height } = this.container.getBoundingBox();
 
-    this.x = (touch.clientX - left) / width;
-    this.y = (touch.clientY - top) / height;
+    this.x = clamp((touch.clientX - left) / width, 0, 1);
+    this.y = clamp((touch.clientY - top) / height, 0, 1);
 
     this.notifySubscribers();
   }

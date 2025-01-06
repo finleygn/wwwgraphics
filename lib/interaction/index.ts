@@ -4,4 +4,4 @@
  * @module
  */
 
-export { default as MousePositionTracker, type EventEmitter } from './MousePositionTracker';
+export { default as MousePositionTracker } from './MousePositionTracker';

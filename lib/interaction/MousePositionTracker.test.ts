@@ -1,12 +1,24 @@
 import { describe, expect, test, beforeEach, afterEach, mock } from "bun:test";
-import MousePositionTracker, { type EventEmitter } from "./MousePositionTracker";
+import MousePositionTracker from "./MousePositionTracker";
 
 describe("MousePositionTracker", () => {
-  let mockElement: EventEmitter;
+  let mockElement: HTMLElement;
   let tracker: MousePositionTracker;
   let eventListeners: { [key: string]: Function[] };
+  let originalWindow: typeof window;
 
   beforeEach(() => {
+    // Save original window
+    originalWindow = global.window;
+
+    // Mock window
+    global.window = {
+      addEventListener: mock((type: string, listener: Function) => {}),
+      removeEventListener: mock((type: string, listener: Function) => {}),
+      innerWidth: 1000,
+      innerHeight: 800,
+    } as unknown as Window & typeof globalThis;
+
     // Reset event listeners for each test
     eventListeners = {
       mousemove: [],
@@ -31,20 +43,22 @@ describe("MousePositionTracker", () => {
         bottom: 900,
         x: 100,
         y: 100,
-        toJSON: () => ({})
       })
-    };
+    } as unknown as HTMLElement;
 
-    tracker = new MousePositionTracker(mockElement);
+    tracker = new MousePositionTracker(0.5, 0.5, mockElement);
   });
 
   afterEach(() => {
     tracker.destroy();
+    // Restore original window
+    global.window = originalWindow;
   });
 
   test("should initialize with default position", () => {
-    expect(tracker.x).toBe(0.5);
-    expect(tracker.y).toBe(0.5);
+    const defaultTracker = new MousePositionTracker();
+    expect(defaultTracker.x).toBe(0.5);
+    expect(defaultTracker.y).toBe(0.5);
   });
 
   test("should handle mouse movement", () => {
@@ -118,11 +132,11 @@ describe("MousePositionTracker", () => {
     
     tracker.destroy();
 
-    // Should remove all three event listeners
+    // Should remove all event listeners (mousemove, touchstart, and touchmove)
     expect(removeEventListenerMock).toHaveBeenCalledTimes(3);
     expect(removeEventListenerMock).toHaveBeenCalledWith('mousemove', expect.any(Function));
-    expect(removeEventListenerMock).toHaveBeenCalledWith('touchmove', expect.any(Function));
     expect(removeEventListenerMock).toHaveBeenCalledWith('touchstart', expect.any(Function));
+    expect(removeEventListenerMock).toHaveBeenCalledWith('touchmove', expect.any(Function));
   });
 
   test("should handle multiple subscribers with correct coordinates", () => {
