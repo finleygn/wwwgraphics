@@ -41,12 +41,12 @@ class Vec2 implements IVec2 {
   }
 
   /**
-   * Get the direction of a vector.
+   * Get the direction to another vector.
    * 
    * @param other the vector to get the direction towards
    */
-  public direction(other: Vec2): this {
-    return this.subtract(other).normalize();
+  public direction(other: Vec2): Vec2 {
+    return this.clone().subtract(other).normalize();
   }
 
   /**
@@ -55,7 +55,7 @@ class Vec2 implements IVec2 {
    * @param other the vector to get the distance to
    */
   public distance(other: Vec2): number {
-    return Math.abs(this.subtract(other).magnitude());
+    return Math.abs(this.clone().subtract(other).magnitude());
   }
 
   /**
