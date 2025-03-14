@@ -1,61 +1,10 @@
-import type { PickRequired } from "../../types/util";
+import type { PickRequired } from "../../../types/util";
+import type { ITextGeometry, ITextGeometryBuilder } from "../types";
 
-const enum ArteryFontYDirection {
-  BOTTOM = "bottom",
-  TOP = "top"
-}
+import { isMSDFGenMetaVariantUnicodeIndexed, isMultiVariantMSDFGenMeta, MSDFGenImageType, MSDFGenYDirection, type MSDFGenMeta, type MSDFGenMetaGlyph, type MSDFGenMetaGlyphIdUnicode, type MSDFGenSingleVariantMeta } from "./types";
 
-const enum ArteryFontImageType {
-  HARD_MASK = "hardmask",
-  SOFT_MASK = "softmask",
-  SDF = "sdf",
-  PSDF = "psdf",
-  MSDF = "msdf",
-  MTSDF = "mtsdf",
-};
 
-interface ArteryFontMetaAtlas {
-  type: ArteryFontImageType;
-  distanceRange: number;
-  distanceRangeMiddle: number;
-  size: number;
-  width: number;
-  height: number;
-  yOrigin: ArteryFontYDirection;
-}
-
-interface ArteryFontMetaMetrics {
-  emSize: number;
-  lineHeight: number;
-  ascender: number;
-  descender: number;
-  underlineY: number;
-  underlineThickness: number;
-  grid: unknown; // TODO
-}
-
-interface ArteryFontBounds {
-  left: number;
-  bottom: number;
-  right: number;
-  top: number;
-}
-
-interface ArteryFontMetaGlyph {
-  unicode: number,
-  advance: number,
-  planeBounds?: ArteryFontBounds;
-  atlasBounds?: ArteryFontBounds;
-}
-
-interface ArteryFontMeta {
-  atlas: ArteryFontMetaAtlas;
-  metrics: ArteryFontMetaMetrics;
-  glyphs: ArteryFontMetaGlyph[];
-  kerning: unknown[];  // TODO
-}
-
-type ArteryFontGlphyLookupTable = Record<number, ArteryFontMetaGlyph>
+type MSDFGenGlyphLookupTable = Record<number, MSDFGenMetaGlyph>
 
 const enum TextAlign {
   CENTER = 'center',
@@ -63,7 +12,7 @@ const enum TextAlign {
   RIGHT = 'right'
 }
 
-interface ArteryFontUserSettings {
+interface MSDFGenUserSettings {
   /**
    * The text to render. May contain new lines.
    */
@@ -92,35 +41,51 @@ interface ArteryFontUserSettings {
   letterSpacing?: number;
 }
 
-type ArteryFontSettings = PickRequired<ArteryFontUserSettings, 'alignment' | 'text'>
+type MSDFGenSettings = PickRequired<MSDFGenUserSettings, 'alignment' | 'text'>
 
-class MSDFArteryText {
-  public settings: ArteryFontSettings;
-  public glpyhs: ArteryFontGlphyLookupTable;
-  public meta: ArteryFontMeta;
-  public buffers: {
-    position: Float32Array,
-    uv: Float32Array,
-    id: Float32Array,
-    index: Uint16Array
-  };
+/**
+ * Create Geometry & UVs for text from msdf-atlas-gen JSON layout metadata.
+ * 
+ * @see https://github.com/Chlumsky/msdf-atlas-gen
+ * @see https://github.com/Chlumsky/msdfgen
+ */
+class MSDFGenTextGeometryBuilder implements ITextGeometryBuilder {
+  public settings: MSDFGenSettings;
+  public glpyhs: MSDFGenGlyphLookupTable;
+  public meta: MSDFGenSingleVariantMeta;
+  public geometry: ITextGeometry;
 
   constructor(
-    settings: ArteryFontUserSettings,
-    meta: ArteryFontMeta
+    settings: MSDFGenUserSettings,
+    meta: MSDFGenMeta
   ) {
-    if(meta.atlas.type !== ArteryFontImageType.MSDF) {
+    // TODO: Allow for multi variant config, when chosen variant is selected.
+    if(isMultiVariantMSDFGenMeta(meta)) {
+      throw new Error("Only single variant MSDF fonts are currently supported.");
+    }
+
+    // TODO: Allow for glyph indexed.
+    if(!isMSDFGenMetaVariantUnicodeIndexed(meta)) {
+      throw new Error("Only unicode indexed MSDF fonts are supported..");
+    }
+
+    // TODO: Potentially we should allow for the other atlas types, as that is a shader only detail.
+    if(meta.atlas.type !== MSDFGenImageType.MSDF) {
       throw new Error("Only MSDF fonts are currently supported.");
     }
 
     this.meta = meta;
     this.settings = this.applyDefaultSettings(settings);
     this.glpyhs = this.createGlyphLookupTable(meta.glyphs);
-    this.buffers = this.createBuffers();
+    this.geometry = this.createBuffers();
     this.computeGeometry();
   }
 
-  private applyDefaultSettings(settings: ArteryFontUserSettings): ArteryFontSettings {
+  public recompute() {
+    this.computeGeometry();
+  }
+
+  private applyDefaultSettings(settings: MSDFGenUserSettings): MSDFGenSettings {
     return {
       ...settings,
       alignment: TextAlign.LEFT,
@@ -160,10 +125,19 @@ class MSDFArteryText {
 
       const u = glyph.atlasBounds.left * widthScale;
       const u2 = glyph.atlasBounds.right * widthScale;
-      const v = glyph.atlasBounds.bottom * heightScale;
-      const v2 = glyph.atlasBounds.top * heightScale;
 
-      this.buffers.uv.set(
+      const isTopOrigin = this.meta.atlas.yOrigin === MSDFGenYDirection.TOP;
+      
+      const v = isTopOrigin 
+        ? (this.meta.atlas.height - glyph.atlasBounds.top) * heightScale 
+        : glyph.atlasBounds.bottom * heightScale;
+
+      const v2 = isTopOrigin 
+        ? (this.meta.atlas.height - glyph.atlasBounds.bottom) * heightScale 
+        : glyph.atlasBounds.top * heightScale;
+
+
+      this.geometry.uv.set(
         [
           // tl bl
           u, v2, u, v,
@@ -173,7 +147,7 @@ class MSDFArteryText {
         cursor * 4 * 2
       );
 
-      this.buffers.position.set(
+      this.geometry.position.set(
         [
           // tl
           x + glyph.planeBounds.left,
@@ -201,20 +175,18 @@ class MSDFArteryText {
     }
   }
   
-  private createBuffers(): this['buffers'] {
+  private createBuffers(): this['geometry'] {
     let chars = this.settings.text.replace(/[ \n]/g, '');
     let numChars = chars.length;
 
-    const buffers = {
+    const geometry = {
       position: new Float32Array(numChars * 4 * 3),
       uv: new Float32Array(numChars * 4 * 2),
-      id: new Float32Array(numChars * 4),
       index: new Uint16Array(numChars * 6),
     };
 
     for (let i = 0; i < numChars; i++) {
-      buffers.id.set([i, i, i, i], i * 4);
-      buffers.index.set([
+      geometry.index.set([
         i * 4,
         i * 4 + 2, 
         i * 4 + 1, 
@@ -224,10 +196,10 @@ class MSDFArteryText {
       ], i * 6);
     }
 
-    return buffers
+    return geometry
   }
 
-  private createGlyphLookupTable(glpyhs: ArteryFontMetaGlyph[]): this['glpyhs'] {
+  private createGlyphLookupTable(glpyhs: MSDFGenMetaGlyphIdUnicode[]): this['glpyhs'] {
     const lookup: this['glpyhs'] = {};
     for(const glpyh of glpyhs) {
       lookup[glpyh.unicode] = glpyh;
@@ -236,4 +208,4 @@ class MSDFArteryText {
   }
 }
 
-export default MSDFArteryText;
+export default MSDFGenTextGeometryBuilder;
