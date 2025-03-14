@@ -1,8 +1,13 @@
+
+/**
+ * Buffers to use for text drawing!
+ */
 export interface ITextGeometry {
   position: Float32Array;
   uv: Float32Array;
   index: Uint16Array;
 }
+
 export interface ITextGeometryBuilder {
   /**
    * Buffers to use for text drawing!
@@ -14,3 +19,4 @@ export interface ITextGeometryBuilder {
    */
   recompute(): void;
 }
+

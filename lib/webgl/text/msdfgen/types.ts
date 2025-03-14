@@ -3,6 +3,8 @@
  * @see https://github.com/Chlumsky/msdf-atlas-gen/blob/master/msdf-atlas-gen/json-export.cpp
  */
 
+//
+
 export enum MSDFGenYDirection {
   BOTTOM = "bottom",
   TOP = "top"
@@ -45,11 +47,6 @@ export interface MSDFGenMetaMetrics {
   underlineY: number;
   underlineThickness: number;
 }
-
-// enum class GlyphIdentifierType {
-//   GLYPH_INDEX,
-//   UNICODE_CODEPOINT
-// };
 
 export interface MSDFGenBounds {
   left: number;
