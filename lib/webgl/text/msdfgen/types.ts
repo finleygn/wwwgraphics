@@ -55,12 +55,6 @@ export interface MSDFGenBounds {
   top: number;
 }
 
-export interface MSDFGenMetaGlyphBase {
-  advance: number,
-  planeBounds?: MSDFGenBounds;
-  atlasBounds?: MSDFGenBounds;
-}
-
 export interface MSDFGenMetaGlyph {
   advance: number,
   planeBounds?: MSDFGenBounds;
@@ -87,7 +81,7 @@ export interface MSDFGenKerningIdUnicode {
   advance: number;
 }
 
-export interface MSDFGenVariantBase {
+interface MSDFGenVariantBase {
   name: string;
   metrics: MSDFGenMetaMetrics;
 }
