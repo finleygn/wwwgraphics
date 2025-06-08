@@ -1,5 +1,15 @@
 import { expDecay } from "./interpolation";
 
+export enum AnimatedValueEvent {
+  Finish,
+  Progress,
+}
+
+export interface AnimatedValueSubscriber {
+  events: AnimatedValueEvent[];
+  callback: (value: AutonomousSmoothValue, event: AnimatedValueEvent) => void;
+}
+
 /**
  * Approach a value upon every tick. Good for creating smooth motion quickly.
  * We don't need to care when the animation started, we only need to know the current value and a target.
@@ -17,11 +27,28 @@ class AutonomousSmoothValue {
   /** Disable tick */
   public enabled: boolean;
 
+  private subscribers: Set<AnimatedValueSubscriber>;
+
   constructor(value: number, strength: number = 0.1, enabled: boolean = true) {
     this.target = value;
     this.value = value;
     this.strength = strength;
     this.enabled = enabled;
+    this.subscribers = new Set();
+  }
+
+  public subscribe(
+    callback: AnimatedValueSubscriber["callback"],
+    events: AnimatedValueSubscriber["events"] = [
+      AnimatedValueEvent.Finish,
+      AnimatedValueEvent.Progress,
+    ]
+  ): () => void {
+    const ref = { callback, events };
+    this.subscribers.add(ref);
+    return () => {
+      this.subscribers.delete(ref);
+    };
   }
 
   /**
