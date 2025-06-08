@@ -1,4 +1,4 @@
-interface IVec2 {
+export interface IVec2 {
   x: number;
   y: number;
 }
@@ -17,32 +17,32 @@ class Vec2 implements IVec2 {
 
   /**
    * Create a new vector from an existing vector.
-   * 
+   *
    * @param vector the vector to clone
-   */ 
+   */
   static from(vector: IVec2): Vec2 {
     return new Vec2(vector.x, vector.y);
   }
 
   /**
    * Create a new vector from an array.
-   * 
+   *
    * @param array the array to create a vector from
-   */ 
+   */
   static fromArray([x, y]: number[]): Vec2 {
     return new Vec2(x ?? 0, y ?? 0);
   }
 
   /**
    * Clone this vector.
-   */ 
+   */
   public clone(): Vec2 {
     return Vec2.from(this);
   }
 
   /**
    * Get the direction to another vector.
-   * 
+   *
    * @param other the vector to get the direction towards
    */
   public direction(other: Vec2): Vec2 {
@@ -51,7 +51,7 @@ class Vec2 implements IVec2 {
 
   /**
    * Get the absolute distance between two vectors.
-   * 
+   *
    * @param other the vector to get the distance to
    */
   public distance(other: Vec2): number {
@@ -60,7 +60,7 @@ class Vec2 implements IVec2 {
 
   /**
    * Add a vector to this vector.
-   * 
+   *
    * @param other the vector to add
    */
   public add(other: Vec2): this {
@@ -71,7 +71,7 @@ class Vec2 implements IVec2 {
 
   /**
    * Subtract a vector from this vector.
-   * 
+   *
    * @param other the vector to subtract
    */
   public subtract(other: Vec2): this {
@@ -82,7 +82,7 @@ class Vec2 implements IVec2 {
 
   /**
    * Divide this vector by another vector.
-   * 
+   *
    * @param other the vector to divide by
    */
   public divide(other: Vec2): this {
@@ -93,7 +93,7 @@ class Vec2 implements IVec2 {
 
   /**
    * Divide this vector by a scalar.
-   * 
+   *
    * @param scalar the scalar to divide by
    */
   public divideScalar(scalar: number): this {
@@ -104,7 +104,7 @@ class Vec2 implements IVec2 {
 
   /**
    * Multiply this vector by another vector.
-   * 
+   *
    * @param other the vector to multiply by
    */
   public multiply(other: Vec2): this {
@@ -115,10 +115,10 @@ class Vec2 implements IVec2 {
 
   /**
    * Multiply this vector by a scalar.
-   * 
+   *
    * @param scalar the scalar to multiply by
    */
-    public multiplyScalar(scalar: number): this {
+  public multiplyScalar(scalar: number): this {
     this.x *= scalar;
     this.y *= scalar;
     return this;
@@ -127,9 +127,9 @@ class Vec2 implements IVec2 {
   /**
    * Normalize this vector.
    */
-    public normalize(): this {
+  public normalize(): this {
     const mag = this.magnitude();
-    if(!mag) {
+    if (!mag) {
       this.x = 1;
       this.y = 0;
     } else {
@@ -147,7 +147,7 @@ class Vec2 implements IVec2 {
 
   /**
    * Get the dot product of this vector and another vector.
-   * 
+   *
    * @param other the vector to get the dot product with
    */
   public dot(other: Vec2): number {
@@ -156,7 +156,7 @@ class Vec2 implements IVec2 {
 
   /**
    * Get the cross product of this vector and another vector.
-   * 
+   *
    * @param other the vector to get the cross product with
    */
   public cross(other: Vec2): number {
@@ -165,12 +165,12 @@ class Vec2 implements IVec2 {
 
   /**
    * Rotate this vector by a given angle.
-   * 
+   *
    * @param rad the angle to rotate by
    */
   public rotate(rad: number): this {
     this.x = this.x * Math.cos(rad) - this.y * Math.sin(rad);
-    this.y =  this.x * Math.sin(rad) + this.y * Math.cos(rad);
+    this.y = this.x * Math.sin(rad) + this.y * Math.cos(rad);
 
     return this;
   }
