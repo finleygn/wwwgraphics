@@ -14,10 +14,14 @@ class AutonomousSmoothValue {
   /** How quickly should value approach target */
   public strength: number;
 
-  constructor(value: number, strength: number = 0.1) {
+  /** Disable tick */
+  public enabled: boolean;
+
+  constructor(value: number, strength: number = 0.1, enabled: boolean = true) {
     this.target = value;
     this.value = value;
     this.strength = strength;
+    this.enabled = enabled;
   }
 
   /**
@@ -41,6 +45,7 @@ class AutonomousSmoothValue {
    * Should be called once per frame to update the value.
    */
   public tick(dt: number): void {
+    if (!this.enabled) return;
     this.value = expDecay(this.value, this.target, this.strength, dt);
   }
 
@@ -50,6 +55,20 @@ class AutonomousSmoothValue {
    */
   public isFinished(threshold = 0.0001): boolean {
     return Math.abs(this.value - this.target) < threshold;
+  }
+
+  /**
+   * Allow the value to approach the target when tick is called.
+   */
+  public enable() {
+    this.enabled = true;
+  }
+
+  /**
+   * Prevent the value from approaching the target when tick is called.
+   */
+  public disable() {
+    this.enabled = true;
   }
 }
 
