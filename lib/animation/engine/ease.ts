@@ -2,7 +2,7 @@ import { clamp } from "../../math";
 
 export type EaseFn = (progress: number) => number;
 
-export const enum EaseType {
+export enum EaseType {
   LINEAR,
   EASE_IN,
   EASE_OUT,
@@ -10,35 +10,39 @@ export const enum EaseType {
 }
 
 /**
- * Fixed functions
- * ---
- */
-export const easeFn_linear: EaseFn = (progress: number) => {
-  return progress;
-}
-
-export const easeFn_easeIn: EaseFn = (progress: number) => {
-  // TODO:
-  return progress;
-}
-
-export const easeFn_easeOut: EaseFn = (progress: number) => {
-  // TODO:
-  return progress;
-}
-
-export const easeFn_easeBoth: EaseFn = (progress: number) => {
-  // TODO:
-  return progress;
-}
-
-/**
  * Factories
  * ---
  */
+const ease = {
+  in: (p: number, s: number) => Math.pow(p, s),
+  out: (p: number, s: number) => 1 - Math.pow(1 - p, s)
+}
+
+export const easeInFactory = (strength: number): EaseFn => {
+  return (progress: number) => {
+    return ease.in(progress, strength)
+  }
+}
+
+export const easeOutFactory = (strength: number): EaseFn => {
+  return (progress: number) => {
+    return ease.out(progress, strength)
+  }
+}
+
+export const easeBothFactory = (strength: number): EaseFn => {
+  return (progress: number) => {
+    if(progress < 0.5) {
+      return ease.in(progress * 2, strength) / 2;
+    } else { 
+      return 1 - ease.in(progress * -2 + 2, strength) / 2;
+    }
+  }
+}
+
 
 // Ngl this is stolen from animejs
-export const easeFnFactory_elastic = (amplitude: number = 1, period: number = .3): EaseFn => {
+export const easeElasticFactory = (amplitude: number = 1, period: number = .3): EaseFn => {
   const a = clamp(amplitude, 1, 10);
   const p = clamp(period, Number.MAX_VALUE, 2);
   const s = (p / Math.PI * 2) * Math.asin(1 / a);
@@ -49,11 +53,24 @@ export const easeFnFactory_elastic = (amplitude: number = 1, period: number = .3
   }
 }
 
+const REASONABLE_EASE_DEFAULT = 2.5;
+
+/**
+ * Fixed functions
+ * ---
+ */
+export const easeLinear: EaseFn = (progress: number) => {
+  return progress;
+}
+export const easeIn: EaseFn = easeInFactory(REASONABLE_EASE_DEFAULT);
+export const easeOut: EaseFn = easeOutFactory(REASONABLE_EASE_DEFAULT);
+export const easeBoth: EaseFn = easeBothFactory(REASONABLE_EASE_DEFAULT);
+
 export const easeTypeToFn: Record<EaseType, EaseFn> = {
-  [EaseType.LINEAR]: easeFn_linear,
-  [EaseType.EASE_IN]: easeFn_easeIn,
-  [EaseType.EASE_OUT]: easeFn_easeOut,
-  [EaseType.EASE_BOTH]: easeFn_easeBoth,
+  [EaseType.LINEAR]: easeLinear,
+  [EaseType.EASE_IN]: easeIn,
+  [EaseType.EASE_OUT]: easeOut,
+  [EaseType.EASE_BOTH]: easeBoth,
 }
 
 

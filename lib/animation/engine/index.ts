@@ -19,9 +19,12 @@ export {
 export {
   type EaseFn,
   EaseType,
-  easeFn_linear,
-  easeFn_easeIn,
-  easeFn_easeOut,
-  easeFn_easeBoth,
-  easeFnFactory_elastic
+  easeLinear as easeFn_linear,
+  easeIn as easeFn_easeIn,
+  easeOut as easeFn_easeOut,
+  easeBoth as easeFn_easeBoth,
+  easeElasticFactory as easeFnFactory_elastic,
+  easeInFactory as easeFnFactory_in,
+  easeOutFactory as easeFnFactory_out,
+  easeBothFactory as easeFnFactory_both
 } from './ease';
