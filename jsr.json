@@ -1,6 +1,6 @@
 {
   "name": "@fishley/wwwgraphics",
-  "version": "0.2.13",
+  "version": "0.2.14",
   "license": "MIT",
   "exports": {
     "./math": "./lib/math/index.ts",
