@@ -6,5 +6,5 @@
  * @module
  */
 
-export { default as Vec2 } from './vectors/Vec2';
+export { default as Vec2, type IVec2 } from './vectors/Vec2';
 export { clamp } from './util';
