@@ -60,11 +60,4 @@ class AnimationEngine {
   }
 }
 
-const e = new AnimationEngine();
-function loop(dt: number) {
-  e.tick(dt);
-  requestAnimationFrame(loop);
-}
-requestAnimationFrame(loop)
-
 export default AnimationEngine;

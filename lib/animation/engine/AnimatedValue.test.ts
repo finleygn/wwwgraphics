@@ -72,3 +72,28 @@ test("automatically removed from engine upon completion", () => {
   engine.tick(100);
   expect(fn).toHaveBeenCalledTimes(1);
 });
+
+
+test("delay hinders progress value", () => {
+  const engine = new AnimationEngine();
+  const fn = mock(() => {}) as AnimatedValueUpdate;
+
+  const animatedValue = new AnimatedValue(
+    fn,
+    { duration: 100, delay: 200, ease: EaseType.LINEAR }
+  )
+
+  engine.add(animatedValue.ani);
+
+  engine.tick(100);
+  expect(fn).lastCalledWith(0, animatedValue);
+
+  engine.tick(100);
+  expect(fn).lastCalledWith(0, animatedValue);
+
+  engine.tick(50);
+  expect(fn).lastCalledWith(0.5, animatedValue);
+
+  engine.tick(50);
+  expect(fn).lastCalledWith(1.0, animatedValue);
+});
