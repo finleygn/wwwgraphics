@@ -168,9 +168,15 @@ class Vec2 implements IVec2 {
    *
    * @param rad the angle to rotate by
    */
-  public rotate(rad: number): this {
-    this.x = this.x * Math.cos(rad) - this.y * Math.sin(rad);
-    this.y = this.x * Math.sin(rad) + this.y * Math.cos(rad);
+  public rotate(angle: number) {
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+
+    const newX = this.x * cos - this.y * sin;
+    const newY = this.x * sin + this.y * cos;
+
+    this.x = newX;
+    this.y = newY;
 
     return this;
   }
