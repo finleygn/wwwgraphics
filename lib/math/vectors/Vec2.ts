@@ -168,7 +168,7 @@ class Vec2 implements IVec2 {
    *
    * @param rad the angle to rotate by
    */
-  public rotate(angle: number) {
+  public rotate(angle: number): Vec2 {
     const cos = Math.cos(angle);
     const sin = Math.sin(angle);
 
