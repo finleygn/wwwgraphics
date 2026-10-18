@@ -4,12 +4,25 @@
  * 
  * Don't use this for smoothing, use {@link expDecay} instead.
  * 
- * @param start the value when t = 0
- * @param end the value when t = 1
+ * @param start the value when {@link progress} = 0
+ * @param end the value when {@link progress} = 1
  * @param progress progress between {@link start} and {@link end}
  */
 export function lerp(start: number, end: number, progress: number): number {
   return start * (1 - progress) + end * progress;
+}
+
+
+/**
+ * Reverse linear interpolation
+ * Return 0 - 1 based on `value` between `start` and `end`.
+ * 
+ * @param start
+ * @param end 
+ * @param value
+ */
+export function inverseLerp(start: number, end: number, value: number): number {
+  return (value - start) / (end - start);
 }
 
 /**

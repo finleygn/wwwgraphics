@@ -12,9 +12,14 @@ export {
 
 export {
   default as AnimationEngine,
-  type IEngineTrackedAnimation,
+  type IEngineTickable,
   type IEvents
 } from './AnimationEngine'
+
+export {
+  default as AnimatedTimeline,
+  type AnimationPhase
+} from './AnimatedTimeline';
 
 export {
   type EaseFn,

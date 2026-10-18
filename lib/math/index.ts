@@ -7,4 +7,5 @@
  */
 
 export { default as Vec2, type IVec2 } from './vectors/Vec2';
-export { clamp } from './util';
+export { clamp, linearStep } from './util';
+export { lerp, inverseLerp, expDecay } from './interpolation';

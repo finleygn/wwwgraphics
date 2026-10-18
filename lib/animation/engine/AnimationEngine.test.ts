@@ -1,5 +1,6 @@
 import { expect, mock, test } from "bun:test";
-import AnimationEngine, { type IEngineTrackedAnimation, type IEvents } from "./AnimationEngine";
+import AnimationEngine from "./AnimationEngine";
+import { type IEngineTickable, type IEvents }  from './IEngineTickable';
 import type { ITiming } from "./timing";
 
 function createTiming(
@@ -15,7 +16,7 @@ function createTiming(
   }
 }
 
-function createAnimation(timing: Partial<ITiming>, events: IEvents = {}): IEngineTrackedAnimation {
+function createAnimation(timing: Partial<ITiming>, events: IEvents = {}): IEngineTickable {
   return {
     autodispose: true,
     timing: createTiming(timing),
@@ -86,21 +87,23 @@ test("delay hinders progress value", () => {
   const tickEvent = mock(() => {});
   const startEvent = mock(() => {});
   const finishEvent = mock(() => {});
-  const basicPausedAnim = createAnimation({ duration: 300, delay: 100 }, { tick: tickEvent, start: startEvent, finish: finishEvent });
+  const basicPausedAnim = createAnimation({ duration: 200, delay: 100 }, { tick: tickEvent, start: startEvent, finish: finishEvent });
   engine.add(basicPausedAnim);
 
-  
+  // Start isn't triggered until the delay has passed
   engine.tick(50);
-  expect(basicPausedAnim.events.start).toHaveBeenCalled();
+  expect(basicPausedAnim.events.start).not.toHaveBeenCalled();
   expect(basicPausedAnim.events.finish).not.toHaveBeenCalled();
   expect(basicPausedAnim.events.tick).lastCalledWith(0);
 
   engine.tick(50);
+  expect(basicPausedAnim.events.start).not.toHaveBeenCalled();
   expect(basicPausedAnim.events.tick).lastCalledWith(0);
 
   engine.tick(100);
+  expect(basicPausedAnim.events.start).toHaveBeenCalledTimes(1);
   expect(basicPausedAnim.events.tick).lastCalledWith(0.5);
-  
+
   expect(basicPausedAnim.events.finish).not.toHaveBeenCalled();
 
   engine.tick(100);

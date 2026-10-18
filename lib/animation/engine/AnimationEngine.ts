@@ -1,63 +1,59 @@
-import { timingTick, type ITiming } from "./timing";
+import { timingTick, type ITiming } from './timing'
 
-export interface IEngineTrackedAnimation {
-  timing: ITiming;
-  events: IEvents;
-  autodispose: boolean;
-  // TODO: Add support for `forwards` `backwards` `loop` `alternate`
+function hasStarted(timing: ITiming) {
+  return timing.time > timing.delay || timing.progress === 1
 }
 
 export interface IEvents {
-  start?(): void;
-  finish?(): void;
-  tick?(progress: number): void;
+  start?(): void
+  finish?(): void
+  tick?(progress: number): void
 }
 
-/**
- * Keeps track of and updates IEngineTrackedAnimation's every frame.
- * 
- * Can be set up with a `renderLoop` or with:
- * ```ts
- * const e = new AnimationEngine();
- * function loop(dt: number) {
- *   e.tick(dt);
- *   requestAnimationFrame(loop);
- * }
- * requestAnimationFrame(loop)
- * ```
- */
-class AnimationEngine {
-  private timing: Set<IEngineTrackedAnimation> = new Set();
+export interface IEngineTickable {
+  timing: ITiming
+  autodispose: boolean
+  events: IEvents
+  enforceGate?: (dt: number) => void
+}
 
-  public add(animation: IEngineTrackedAnimation) {
-    this.timing.add(animation);
+class AnimationEngine {
+  private timing: Set<IEngineTickable> = new Set()
+
+  public add(animation: IEngineTickable) {
+    this.timing.add(animation)
   }
 
-  public remove(animation: IEngineTrackedAnimation) {
-    this.timing.delete(animation);
+  public remove(animation: IEngineTickable) {
+    this.timing.delete(animation)
   }
 
   public tick(dt: number) {
-    for(const animation of this.timing) {
-      if(animation.timing.paused) continue;
-      let hadPreviouslyFinished = animation.timing.progress === 1;
+    for (const animation of this.timing) {
+      if (animation.timing.paused) continue
 
-      if(animation.timing.progress === 0) {
-        animation.events.start?.();
+      const hadStarted = hasStarted(animation.timing)
+      const hadPreviouslyFinished = animation.timing.progress === 1
+
+      timingTick(animation.timing, dt)
+      animation.enforceGate?.(dt)
+
+      if (!hadStarted && hasStarted(animation.timing)) {
+        animation.events.start?.()
       }
 
-      timingTick(animation.timing, dt);
-
-      if(animation.timing.progress === 1 && !hadPreviouslyFinished) {
-        animation.events.finish?.();
-        if(animation.autodispose) {
-          this.remove(animation);
+      // Trigger finish
+      if (animation.timing.progress === 1 && !hadPreviouslyFinished) {
+        animation.events.finish?.()
+        if (animation.autodispose) {
+          this.timing.delete(animation)
         }
       }
 
-      animation.events.tick?.(animation.timing.progress);
+      // Notify elsewhere
+      animation.events.tick?.(animation.timing.progress)
     }
   }
 }
 
-export default AnimationEngine;
+export default AnimationEngine

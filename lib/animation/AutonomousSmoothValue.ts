@@ -1,4 +1,4 @@
-import { expDecay } from "./interpolation";
+import { expDecay } from "../math/interpolation";
 
 export enum AnimatedValueEvent {
   Finish,
