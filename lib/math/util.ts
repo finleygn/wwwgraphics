@@ -16,6 +16,6 @@ export function clamp(v: number, min: number, max: number): number {
  * 
  * Good for subsecting animation timelines!
  */
-export function linearStep(value: number, start: number, end: number) {
+export function linearStep(value: number, start: number, end: number): number {
   return clamp(inverseLerp(start, end, value), 0, 1)
 }

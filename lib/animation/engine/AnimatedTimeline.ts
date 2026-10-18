@@ -49,7 +49,7 @@ class AnimationTimeline<K = string> implements IEngineTickable {
   /**
    * Time in ms since the timeline started, excluding delay
    */
-  public get elapsed() {
+  public get elapsed(): number {
     return Math.max(0, this.timing.time - this.timing.delay)
   }
 
@@ -68,7 +68,7 @@ class AnimationTimeline<K = string> implements IEngineTickable {
   /**
    * Whether the current elapsed time is within the phase.
    */
-  public isInPhase(name: K) {
+  public isInPhase(name: K): boolean {
     const now = this.elapsed
     const track = this.phases.get(name)
 
@@ -112,7 +112,7 @@ class AnimationTimeline<K = string> implements IEngineTickable {
   /**
    * Eased 0-1 progress through the phase.
    */
-  public progress(name: K) {
+  public progress(name: K): number {
     const track = this.phases.get(name)
     if (!track) return 0
 
