@@ -4,6 +4,11 @@
   "license": "MIT",
   "exports": {
     "./math": "./lib/math/index.ts",
+    "./math/vec2": "./lib/math/vectors/Vec2.ts",
+    "./math/vec3": "./lib/math/vectors/Vec3.ts",
+    "./math/mat2": "./lib/math/matricies/Mat2.ts",
+    "./math/mat3": "./lib/math/matricies/Mat3.ts",
+    "./math/mat4": "./lib/math/matricies/Mat4.ts",
     "./animation": "./lib/animation/index.ts",
     "./animation/engine": "./lib/animation/engine/index.ts",
     "./interaction": "./lib/interaction/index.ts",
